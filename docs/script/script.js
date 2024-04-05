@@ -256,7 +256,7 @@ const concluirEdicaoTexto = function (textoEditado) {
     const idTarefaEditada = +tarefaEditadaEl.dataset.id;
     const tarefaEditada = tarefas.find(tarefa => tarefa.id === idTarefaEditada);
 
-    const novoValor = textoEditado.textContent || antigoTextoGlobal;
+    const novoValor = textoEditado.textContent.trim() || antigoTextoGlobal;
 
     if (textoEditado.classList.contains("descricao-texto")) tarefaEditada.descricao = novoValor;
 
@@ -269,7 +269,7 @@ const concluirEdicaoTexto = function (textoEditado) {
     };
 
     textoEditado.contentEditable = false;
-    
+
     init();
 };
 
@@ -339,8 +339,8 @@ const concluirAdicaoSubtarefa = function (tarefaParent) {
 };
 
 const criarNovaTarefa = function () {
-    const valorTarefa = inputTarefa.value;
-    const valorProjeto = inputProjeto.value;
+    const valorTarefa = inputTarefa.value.trim();
+    const valorProjeto = inputProjeto.value.trim();
     const valorPrazo = inputPrazo.find(input => input.checked).value;
     const proxId = tarefas.at(-1)?.id + 1 || 1;
 
