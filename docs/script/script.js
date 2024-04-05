@@ -513,11 +513,13 @@ containerTarefas.addEventListener("dblclick", function (e) {
             if (target.classList.contains("projeto-texto")) {
                 editando = true;
                 textoEditado = target;
+                antigoTextoGlobal = undefined;
                 editarTexto(target);
             };
             if (target.classList.contains("descricao-texto") || target.classList.contains("descricao-texto-child") && tarefaConcluida === "false") {
                 editando = true;
                 textoEditado = target;
+                antigoTextoGlobal = target.textContent;
                 editarTexto(target);
             };
         };
