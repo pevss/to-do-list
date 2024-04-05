@@ -30,7 +30,7 @@ A execução
 Protótipo e estruturação do HTML
 ---
 
-Para começar, é claro, criei o [protótipo](https://www.figma.com/file/OZoExm6g7MWVfyUnalp1XR/Todo-app?type=design&node-id=0%3A1&mode=design&t=pW87gJ2zF4JjFoVz-1) no Figma para eu não começar o desenvolvimento as cegas, afinal de contas, eu queria que o projeto tivese um acabamento especial (e, por de experiência própria, que eu sei que tentar fazer uma interface com dois temas (claro e escuro) na improvisação é impossível).
+Para começar, é claro, criei o [protótipo](https://www.figma.com/file/OZoExm6g7MWVfyUnalp1XR/Todo-app?type=design&node-id=0%3A1&mode=design&t=pW87gJ2zF4JjFoVz-1) no Figma para eu não começar o desenvolvimento as cegas, afinal de contas, eu queria que o projeto tivese um acabamento especial (e, por experiência própria, sei que tentar fazer uma interface com dois temas (claro e escuro) na improvisação é quase impossível).
 
   Observação: Do protótipo que vieram as variáveis de cor do CSS ;)
 
