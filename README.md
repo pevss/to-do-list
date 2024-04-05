@@ -87,3 +87,5 @@ Algumas features que desejo adicionar no futuro:
 -  Drag and drop para reorganizar a ordem em que as tarefas são exibidas.
 -  Responsividade para uso da ferramenta em celulares e outros dispositivos menores. (Não sei como posso deixar uma tabela resposiva, elas ão muito longas. Devo aprender isso quando eu fizer o [curso de css](https://www.udemy.com/course/advanced-css-and-sass/?couponCode=KEEPLEARNING))
 -  Adição de tarefas diárias (tarefas fixas que reaparecem todos os dias).
+
+  Observação: Não ficou nada óbvio, mas para editar uma tarefa ou o nome do seu projeto, basta dar duplo click! (não funciona para tarefas vencidas por motivos óbvios)
