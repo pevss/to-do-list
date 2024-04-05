@@ -6,7 +6,7 @@ To Do List 📝
 A ideia 
 ===
 
-Após finalizar a Seção 13 do [curso de JavaScript](https://www.udemy.com/course/the-complete-javascript-course/?couponCode=KEEPLEARNING), que fala sobre manipulação avançada do DOM (DOM Treversing, Event Bubbling, Event Delegation, Intersection Observer API, criação programática de elementos, alteração programática de atributos e propriedades, etc), decidi que antes de avançar para a próxima seção (Programação Orientada ao Objeto), eu gostaria de por tudo aquilo que eu aprendi em prática. Assim, decidi criar essa to-do list (assim como todo aspirante a desenvolvimento Front-End 😂).
+Após finalizar a Seção 13 do [curso de JavaScript](https://www.udemy.com/course/the-complete-javascript-course/?couponCode=KEEPLEARNING), que fala sobre manipulação avançada do DOM (DOM Traversing, Event Bubbling, Event Delegation, Intersection Observer API, criação programática de elementos, alteração programática de atributos e propriedades, etc), decidi que antes de avançar para a próxima seção (Programação Orientada ao Objeto), eu gostaria de por tudo aquilo que eu aprendi em prática. Assim, decidi criar essa to-do list (assim como todo aspirante a desenvolvimento Front-End 😂).
 
 Para esse projeto eu escrevi uma lista com as técnicas aprendidas que eu gostaria de praticar sozinho:
 
