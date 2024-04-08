@@ -318,9 +318,6 @@ const concluirAdicaoSubtarefa = function (tarefaParent) {
             descricao: input.value,
             completa: false,
         });
-
-        elementoASerDeletado.remove();
-        init();
     } else {
         subtarefas.push({
             id: idTarefa,
@@ -331,17 +328,17 @@ const concluirAdicaoSubtarefa = function (tarefaParent) {
                 },
             ],
         });
-
-        elementoASerDeletado.remove();
-        init();
     };
+
+    elementoASerDeletado.remove();
+    init();
 };
 
 const criarNovaTarefa = function () {
     const valorTarefa = inputTarefa.value.trim();
     const valorProjeto = inputProjeto.value.trim();
     const valorPrazo = inputPrazo.find(input => input.checked).value;
-    const proxId = tarefas.at(-1)?.id + 1 || 1;
+    const id = tarefas.at(-1)?.id + 1 || 1;
 
     const calcDiasAteDiaDaSemana = function(diaSemana){
         let dias = 0;
@@ -349,8 +346,8 @@ const criarNovaTarefa = function () {
         const diasAteDiaDaSemana = function(dia = new Date()){
             if(dia.getDay() === diaSemana) return dias;
             else {
-                const hojeTime = dia.getTime();
-                const diaSeguinte = new Date(hojeTime + (24 * 60 * 60 * 1000));
+                const diaTime = dia.getTime();
+                const diaSeguinte = new Date(diaTime + (24 * 60 * 60 * 1000));
                 dias++;
                 return diasAteDiaDaSemana(diaSeguinte);
             };
@@ -386,7 +383,7 @@ const criarNovaTarefa = function () {
     };
 
     tarefas.push({
-        id: proxId,
+        id,
         descricao: valorTarefa,
         projeto: valorProjeto,
         dataCriacao: hojeIso,
@@ -438,9 +435,7 @@ containerTarefas.addEventListener("click", function (e) {
 
             setTimeout(function () {
                 tarefa.style.opacity = 0;
-                setTimeout(function () {
-                    init();
-                }, 350);
+                setTimeout(() => init(), 350);
             }, 500);
         };
 
@@ -454,9 +449,7 @@ containerTarefas.addEventListener("click", function (e) {
 
             setTimeout(function () {
                 tarefaChildClicada.style.opacity = 0;
-                setTimeout(function () {
-                    init();
-                }, 350);
+                setTimeout(() => init(), 350);
             }, 500);
 
             if (subtarefaObj.subtarefas.every(subtarefa => subtarefa.completa)) {
@@ -464,9 +457,7 @@ containerTarefas.addEventListener("click", function (e) {
                 tarefaEl.dataset.concluido = true;
                 setTimeout(function () {
                     tarefa.style.opacity = 0;
-                    setTimeout(function () {
-                        init();
-                    }, 350);
+                    setTimeout(() => init(), 350);
                 }, 500);
             };
         };
@@ -531,14 +522,15 @@ containerTarefas.addEventListener("dblclick", function (e) {
                 editando = true;
                 textoEditado = target;
                 antigoTextoGlobal = undefined;
-                editarTexto(target);
             };
+
             if (target.classList.contains("descricao-texto") || target.classList.contains("descricao-texto-child") && tarefaConcluida === "false") {
                 editando = true;
                 textoEditado = target;
                 antigoTextoGlobal = target.textContent;
-                editarTexto(target);
             };
+
+            editarTexto(target);
         };
     };
 });
