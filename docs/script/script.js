@@ -359,10 +359,12 @@ const criarNovaTarefa = function () {
         return diasAteDiaDaSemana;
     };
 
+    const diasAteSabado = calcDiasAteDiaDaSemana(6);
+
     const diasPrazo = {
         hoje: 0,
         amanha: 1,
-        semana: calcDiasAteDiaDaSemana(6)(),
+        semana: diasAteSabado(),
     };
 
     const hoje = new Date().getTime();
