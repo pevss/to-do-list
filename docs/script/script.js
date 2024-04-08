@@ -282,7 +282,7 @@ const adicionarSubtarefa = function (tarefaParent) {
 
     const containerTarefaChild = criarElemento("div", ["tarefa-child"]);
     const inputAdicionar = criarElemento("input", ["adicionar-subtarefa"]);
-    
+
     containerTarefaChild.append(inputAdicionar);
 
     if (tarefaParent.classList.contains("tarefa-complexa")) {
@@ -343,26 +343,26 @@ const criarNovaTarefa = function () {
     const valorPrazo = inputPrazo.find(input => input.checked).value;
     const proxId = tarefas.at(-1)?.id + 1 || 1;
 
-    const calcDiasAteSabado = function(){
+    const calcDiasAteDiaDaSemana = function(diaSemana){
         let dias = 0;
 
-        const diasAteSabado = function(hoje = new Date()){
-            if(hoje.getDay() === 6) return dias;
+        const diasAteDiaDaSemana = function(dia = new Date()){
+            if(dia.getDay() === diaSemana) return dias;
             else {
-                const hojeTime = hoje.getTime();
-                const amanha = new Date(hojeTime + (24 * 60 * 60 * 1000));
+                const hojeTime = dia.getTime();
+                const diaSeguinte = new Date(hojeTime + (24 * 60 * 60 * 1000));
                 dias++;
-                return diasAteSabado(amanha);
+                return diasAteDiaDaSemana(diaSeguinte);
             };
         };
 
-        return diasAteSabado;
+        return diasAteDiaDaSemana;
     };
 
     const diasPrazo = {
         hoje: 0,
         amanha: 1,
-        semana: calcDiasAteSabado()(),
+        semana: calcDiasAteDiaDaSemana(6)(),
     };
 
     const hoje = new Date().getTime();
