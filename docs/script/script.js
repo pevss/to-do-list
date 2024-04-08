@@ -280,13 +280,10 @@ const adicionarSubtarefa = function (tarefaParent) {
 
     adicionandoSubtarefa = true;
 
-    const containerTarefaChild = document.createElement("div");
-    const inputAdicionar = document.createElement("input");
-
-    inputAdicionar.classList.add("adicionar-subtarefa");
-    containerTarefaChild.classList.add("tarefa-child");
+    const containerTarefaChild = criarElemento("div", ["tarefa-child"]);
+    const inputAdicionar = criarElemento("input", ["adicionar-subtarefa"]);
+    
     containerTarefaChild.append(inputAdicionar);
-
 
     if (tarefaParent.classList.contains("tarefa-complexa")) {
         const containerTarefasChild = tarefaParent.querySelector(".tarefas-child");
@@ -297,6 +294,8 @@ const adicionarSubtarefa = function (tarefaParent) {
         const tarefaWrapper = tarefaParent.parentElement;
         tarefaWrapper.append(containerTarefaChild);
     };
+
+    inputAdicionar.focus();
 };
 
 const concluirAdicaoSubtarefa = function (tarefaParent) {
