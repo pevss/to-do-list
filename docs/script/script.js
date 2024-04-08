@@ -344,10 +344,26 @@ const criarNovaTarefa = function () {
     const valorPrazo = inputPrazo.find(input => input.checked).value;
     const proxId = tarefas.at(-1)?.id + 1 || 1;
 
+    const calcDiasAteSabado = function(){
+        let dias = 0;
+
+        const diasAteSabado = function(hoje = new Date()){
+            if(hoje.getDay() === 6) return dias;
+            else {
+                const hojeTime = hoje.getTime();
+                const amanha = new Date(hojeTime + (24 * 60 * 60 * 1000));
+                dias++;
+                return diasAteSabado(amanha);
+            };
+        };
+
+        return diasAteSabado;
+    };
+
     const diasPrazo = {
         hoje: 0,
         amanha: 1,
-        semana: 7,
+        semana: calcDiasAteSabado()(),
     };
 
     const hoje = new Date().getTime();
@@ -438,7 +454,7 @@ containerTarefas.addEventListener("click", function (e) {
             setTimeout(function () {
                 tarefaChildClicada.style.opacity = 0;
                 setTimeout(function () {
-                    tarefaChildClicada.remove();
+                    init();
                 }, 350);
             }, 500);
 
