@@ -4,6 +4,7 @@
 
 if(!localStorage.getItem("tarefas")) localStorage.setItem("tarefas", JSON.stringify([]));
 if(!localStorage.getItem("subtarefas")) localStorage.setItem("subtarefas", JSON.stringify([]));
+if(!localStorage.getItem("tema")) localStorage.setItem("tema", "claro");
 
 const tarefas = JSON.parse(localStorage.getItem("tarefas"));
 const subtarefas = JSON.parse(localStorage.getItem("subtarefas"));
@@ -16,6 +17,7 @@ const btnSubmitTarefa = document.querySelector(".submit-tarefa");
 const btnMudarTema = document.querySelector(".mode-switch");
 const containerTarefas = document.querySelector(".minhas-tarefas");
 const containerTarefasAbandonadas = document.querySelector(".tarefas-grupo-vencidas");
+const [sol, lua] = document.querySelectorAll(".mode-icon");
 
 const coresDarkMode = {
     "--separadores": "#57534e6c",
@@ -49,7 +51,7 @@ const coresLightMode = {
     "--verde-main": "#10B981",
     "--verde-accent": "#D1FAE5"
 };
-let darkMode = true;
+let tema = localStorage.getItem("tema");
 
 let adicionandoSubtarefa = false;
 let parentTarefaAdicionada;
@@ -399,10 +401,24 @@ const criarNovaTarefa = function () {
     init();
 };
 
-const handleModeSwitch = function (isDarkMode = false) {
-    const esquemaDeCores = isDarkMode ? coresDarkMode : coresLightMode;
-    
-    for(const [nome, valor] of Object.entries(esquemaDeCores)) document.documentElement.style.setProperty(nome, valor);
+const setTemaClaro = function(){
+    localStorage.setItem("tema", "claro");
+    tema = localStorage.getItem("tema");
+
+    for(const [variavel, valor] of Object.entries(coresLightMode)) document.documentElement.style.setProperty(variavel, valor);
+    [sol.dataset.active, lua.dataset.active] = [false, true];
+
+    console.log("oi")
+};
+
+const setTemaEscuro = function(){
+    localStorage.setItem("tema", "escuro");
+    tema = localStorage.getItem("tema");
+
+    for(const [variavel, valor] of Object.entries(coresDarkMode)) document.documentElement.style.setProperty(variavel, valor);
+    [sol.dataset.active, lua.dataset.active] = [true, false];
+
+    console.log("oie")
 };
 
 const init = function () {
@@ -413,9 +429,8 @@ const init = function () {
     renderizarTarefasPorPrazo(tarefasObj);
 };
 
-handleModeSwitch(true);
 init();
-
+if(tema === "escuro") setTemaEscuro();
 
 //Event Handlers
 
@@ -500,14 +515,7 @@ btnSubmitTarefa.addEventListener("click", function (e) {
     criarNovaTarefa();
 });
 
-btnMudarTema.addEventListener("click", function (e) {
-    const botao = e.target.closest(".mode-switch") || e.target;
-    const [lua, sol] = botao.children;
-
-    darkMode = !darkMode;
-    [lua.dataset.active, sol.dataset.active] = [sol.dataset.active, lua.dataset.active];
-    handleModeSwitch(darkMode);
-});
+btnMudarTema.addEventListener("click", () => tema === "claro" ? setTemaEscuro() : setTemaClaro());
 
 containerTarefas.addEventListener("dblclick", function (e) {
     const target = e.target;
