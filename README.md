@@ -88,5 +88,7 @@ Algumas features que desejo adicionar no futuro:
 -  Responsividade para uso da ferramenta em celulares e outros dispositivos menores (Não sei como posso deixar uma tabela resposiva, elas são muito longas. Devo aprender isso quando eu fizer o [curso de css](https://www.udemy.com/course/advanced-css-and-sass/?couponCode=KEEPLEARNING)).
 -  Adição de tarefas diárias (tarefas fixas que reaparecem todos os dias).
 -  Adição da aba "tarefas concluidas", que mostra todas as tarefas já conluídas pelo usuário.
+-  Sugestão de projetos com projetos já "criados" pelo usuário.
+-  Tarefas flutuantes (que não tem data).
 
   Observação: Não ficou nada óbvio, mas para editar uma tarefa ou o nome do seu projeto, basta dar duplo click! (não funciona para tarefas vencidas por motivos óbvios)
