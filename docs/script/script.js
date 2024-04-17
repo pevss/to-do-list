@@ -1,7 +1,5 @@
 "use scrict";
 
-// import { tarefas, subtarefas } from "./tarefas.js";
-
 if(!localStorage.getItem("tarefas")) localStorage.setItem("tarefas", JSON.stringify([]));
 if(!localStorage.getItem("subtarefas")) localStorage.setItem("subtarefas", JSON.stringify([]));
 if(!localStorage.getItem("tema")) localStorage.setItem("tema", "claro");
@@ -63,11 +61,18 @@ let antigoTextoGlobal;
 
 // Funções
 
-const gerarTarefasPorPrazo = function (tarefas) {
-    //Gerando timestamps dinâmicos para fazer os testes lógicos
-    const hojeISO = new Date().toISOString();
-    const hoje = new Date(hojeISO.split("T")[0]).getTime();
+const gerarDatas = function(){
+    const [hojeISO] = new Date().toISOString().split("T");
+
+    const hoje = new Date(hojeISO).getTime();
     const amanha = new Date(hoje + (24 * 60 * 60 * 1000)).getTime();
+    const ontem = new Date(hoje - (24 * 60 * 60 * 1000)).getTime();
+
+    return { ontem, hoje, amanha };
+};
+
+const gerarTarefasPorPrazo = function (tarefas) {
+    const { hoje, amanha } = gerarDatas();
 
     const tarefasPorPrazo = {
         hoje: [],
@@ -101,6 +106,23 @@ const gerarTarefasPorPrazo = function (tarefas) {
     return tarefasPorPrazo;
 };
 
+const calcularDataDeCriacaoTarefa = function(dataISO){
+    const { ontem, hoje } = gerarDatas();
+
+    const [dataTarefaSemHoras] = dataISO.split("T"); 
+    const dataTarefaTime = new Date(dataTarefaSemHoras).getTime();
+
+    const formatadorData = new Intl.DateTimeFormat("pt-BR", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+    });
+
+    if(dataTarefaTime === hoje) return "Criada hoje";
+    else if(dataTarefaTime === ontem) return "Criada ontem";
+    else return `Criada dia ${formatadorData.format(new Date(dataISO))}`;
+};
+
 const criarElemento = function(tipoElemento, classes, conteudo){
     const elemento = document.createElement(tipoElemento);
     if(classes.length) elemento.classList.add(...classes);
@@ -109,120 +131,148 @@ const criarElemento = function(tipoElemento, classes, conteudo){
     return elemento;
 };
 
-const criarTarefas = function (tarefas) {
-    const formatadorData = new Intl.DateTimeFormat("pt-BR", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
+const criarElementoTarefaSimples = function(tarefa){
+    const wrapperTarefaWrapper = criarElemento("div", ["wrapper-tarefa"]);
+
+    const tarefaWrapper = criarElemento("div", ["tarefa"]);
+
+    const descricaoWrapper = criarElemento("div", ["descricao"]);
+    const riscoTarefa = criarElemento("div", ["tarefa-risco"]);
+    const checkTarefa = criarElemento("div", ["check-tarefa"]);
+    const labelDescricao = criarElemento("p", ["descricao-texto", "editavel"], tarefa.descricao);
+    const iconAdiconarTarefaChild = criarElemento("i", ["ph", "ph-plus-circle"]);
+
+    const labelProjeto = criarElemento("p", ["projeto-texto", "editavel"], tarefa.projeto || "*");
+    const labelData = criarElemento("p", ["data-texto", "editavel"], calcularDataDeCriacaoTarefa(tarefa.dataCriacao));
+
+    checkTarefa.dataset.concluido = tarefa.completa;
+    tarefaWrapper.dataset.id = tarefa.id;
+
+    descricaoWrapper.append(riscoTarefa, checkTarefa, labelDescricao, iconAdiconarTarefaChild);
+    tarefaWrapper.append(descricaoWrapper, labelProjeto, labelData);
+    wrapperTarefaWrapper.append(tarefaWrapper);
+
+    return wrapperTarefaWrapper;
+};
+
+const criarElementoTarefaParent = function(tarefa){
+    const tarefaParentWrapper = criarElemento("div", ["tarefa-parent"]);
+    const descricaoParentWrapper = criarElemento("div", ["descricao"]);
+    const bolaParent = criarElemento("div", ["bola"]);
+    const labelDescricaoParent = criarElemento("p", ["descricao-texto", "editavel"], tarefa.descricao);
+    const iconAdiconarTarefaChild = criarElemento("i", ["ph", "ph-plus-circle"]);
+
+    const labelProjetoParent = criarElemento("p", ["projeto-texto", "editavel"], tarefa.projeto || "*");
+    const labelDataParent = criarElemento("p", ["data-texto"], calcularDataDeCriacaoTarefa(tarefa.dataCriacao));
+
+    if (tarefa.subtarefas.every(subtarefa => subtarefa.completa === true)) tarefaParentWrapper.dataset.concluido = true;
+    else tarefaParentWrapper.dataset.concluido = false;
+
+    descricaoParentWrapper.append(bolaParent, labelDescricaoParent, iconAdiconarTarefaChild);
+    tarefaParentWrapper.append(descricaoParentWrapper, labelProjetoParent, labelDataParent);
+
+    return tarefaParentWrapper;
+};
+
+const criarElementoTarefaChild = function(subtarefa, indexSubtarefa){
+    const containerTarefaChild = criarElemento("div", ["tarefa-child"]);
+    const descricaoChildWrapper = criarElemento("div", ["descricao"]);
+
+    const bolinhaChild = criarElemento("div", ["bolinha-tarefa-child"]);
+    const riscoTarefa = criarElemento("div", ["tarefa-risco"]);
+    const checkChild = criarElemento("div", ["check-tarefa"]);
+    const labelDescricaoChild = criarElemento("p", ["descricao-texto-child", "editavel"], subtarefa.descricao);
+
+    checkChild.dataset.concluido = subtarefa.completa;
+    containerTarefaChild.dataset.index = indexSubtarefa;
+
+    descricaoChildWrapper.append(riscoTarefa, checkChild, labelDescricaoChild);
+    containerTarefaChild.append(bolinhaChild, descricaoChildWrapper);
+
+    return containerTarefaChild;
+};
+
+const criarContainerComTarefasChild = function(tarefa){
+    const containerTarefasChild = criarElemento("div", ["tarefas-child"]);
+
+    tarefa.subtarefas.forEach((subtarefa, i) => {
+        if (!subtarefa.completa) {
+            const tarefaChild = criarElementoTarefaChild(subtarefa, i);
+            containerTarefasChild.append(tarefaChild);
+        };
     });
 
-    const criarTarefaSimples = function(tarefa){
-        const wrapperTarefaWrapper = criarElemento("div", ["wrapper-tarefa"]);
+    return containerTarefasChild;
+};
 
-        const tarefaWrapper = criarElemento("div", ["tarefa"]);
+const criarWrapperParaTarefasChild = function(tarefa){
+    const tarefasChildWrapper = criarElemento("div", ["tarefas-child-wrapper"]);
+    const linhaTarefasChild = criarElemento("div", ["linha-tarefas-child"]);
+    const containerTarefasChild = criarContainerComTarefasChild(tarefa);
 
-        const descricaoWrapper = criarElemento("div", ["descricao"]);
-        const riscoTarefa = criarElemento("div", ["tarefa-risco"]);
-        const checkTarefa = criarElemento("div", ["check-tarefa"]);
-        const labelDescricao = criarElemento("p", ["descricao-texto", "editavel"], tarefa.descricao);
-        const iconAdiconarTarefaChild = criarElemento("i", ["ph", "ph-plus-circle"]);
+    tarefasChildWrapper.append(linhaTarefasChild, containerTarefasChild);
 
-        const labelProjeto = criarElemento("p", ["projeto-texto", "editavel"], tarefa.projeto || "*");
-        const labelData = criarElemento("p", ["data-texto", "editavel"], `Criada em ${formatadorData.format(new Date(tarefa.dataCriacao))}`);
+    return tarefasChildWrapper;
+};
 
-        checkTarefa.dataset.concluido = tarefa.completa;
-        tarefaWrapper.dataset.id = tarefa.id;
+const criarElementoTarefaComplexa = function(tarefa){
+    const tarefaWrapper = criarElemento("div", ["tarefa-complexa"]);
+    tarefaWrapper.dataset.id = tarefa.id;
 
-        descricaoWrapper.append(riscoTarefa, checkTarefa, labelDescricao, iconAdiconarTarefaChild);
-        tarefaWrapper.append(descricaoWrapper, labelProjeto, labelData);
-        wrapperTarefaWrapper.append(tarefaWrapper);
+    const tarefaParent = criarElementoTarefaParent(tarefa);
+    const tarefasChild = criarWrapperParaTarefasChild(tarefa);
+    
+    tarefaWrapper.append(tarefaParent, tarefasChild);
 
-        return wrapperTarefaWrapper;
-    };
+    return tarefaWrapper;
+};
 
-    const criarTarefaComplexa = function(tarefa){
-        const tarefaWrapper = criarElemento("div", ["tarefa-complexa"]);
+const criarElementoTarefaVencida = function(tarefa){
+    const tarefaWrapper = criarElemento("div", ["tarefa", "tarefa-vencida"]);
 
-        const tarefaParentWrapper = criarElemento("div", ["tarefa-parent"]);
-        const descricaoParentWrapper = criarElemento("div", ["descricao"]);
-        const bolaParent = criarElemento("div", ["bola"]);
-        const labelDescricaoParent = criarElemento("p", ["descricao-texto", "editavel"], tarefa.descricao);
-        const iconAdiconarTarefaChild = criarElemento("i", ["ph", "ph-plus-circle"]);
+    const descricaoWrapper = criarElemento("div", ["descricao"]);
+    const iconTentarDeNovo = criarElemento("i", ["ph", "ph-arrow-clockwise"]);
+    const iconApagarTarefa = criarElemento("i", ["ph", "ph-trash"]);
+    const labelDescricao = criarElemento("p", ["descricao-texto"], tarefa.descricao);
 
-        const labelProjetoParent = criarElemento("p", ["projeto-texto", "editavel"], tarefa.projeto || "*");
-        const labelDataParent = criarElemento("p", ["data-texto"], `Criada em ${formatadorData.format(new Date(tarefa.dataCriacao))}`);
+    const labelProjeto = criarElemento("p", ["projeto-texto"], tarefa.projeto || "*");
+    const labelData = criarElemento("p", ["data-texto"], calcularDataDeCriacaoTarefa(tarefa.dataCriacao));
 
-        const tarefasChildWrapper = criarElemento("div", ["tarefas-child-wrapper"]);
-        const linhaTarefasChild = criarElemento("div", ["linha-tarefas-child"]);
-        const containerTarefasChild = criarElemento("div", ["tarefas-child"]);
+    tarefaWrapper.dataset.id = tarefa.id;
 
-        if (tarefa.subtarefas.every(subtarefa => subtarefa.completa === true)) tarefaParentWrapper.dataset.concluido = true;
-        else tarefaParentWrapper.dataset.concluido = false;
+    descricaoWrapper.append(iconTentarDeNovo, iconApagarTarefa, labelDescricao);
+    tarefaWrapper.append(descricaoWrapper, labelProjeto, labelData);
 
-        tarefaWrapper.dataset.id = tarefa.id;
+    return tarefaWrapper;
+};
 
-        descricaoParentWrapper.append(bolaParent, labelDescricaoParent, iconAdiconarTarefaChild);
-        tarefaParentWrapper.append(descricaoParentWrapper, labelProjetoParent, labelDataParent);
-
-        tarefa.subtarefas.forEach((subtarefa, i) => {
-            if (!subtarefa.completa) {
-                const containerTarefaChild = criarElemento("div", ["tarefa-child"]);
-                const descricaoChildWrapper = criarElemento("div", ["descricao"]);
-
-                const bolinhaChild = criarElemento("div", ["bolinha-tarefa-child"]);
-                const riscoTarefa = criarElemento("div", ["tarefa-risco"]);
-                const checkChild = criarElemento("div", ["check-tarefa"]);
-                const labelDescricaoChild = criarElemento("p", ["descricao-texto-child", "editavel"], subtarefa.descricao);
-
-                checkChild.dataset.concluido = subtarefa.completa;
-                containerTarefaChild.dataset.index = i;
-
-                descricaoChildWrapper.append(riscoTarefa, checkChild, labelDescricaoChild);
-                containerTarefaChild.append(bolinhaChild, descricaoChildWrapper);
-                containerTarefasChild.append(containerTarefaChild);
-            };
-        });
-
-        tarefasChildWrapper.append(linhaTarefasChild, containerTarefasChild);
-        tarefaWrapper.append(tarefaParentWrapper, tarefasChildWrapper);
-
-        return tarefaWrapper;
-    };
-
-    const criarTarefaVencida = function(tarefa){
-        const tarefaWrapper = criarElemento("div", ["tarefa", "tarefa-vencida"]);
-
-        const descricaoWrapper = criarElemento("div", ["descricao"]);
-        const iconTentarDeNovo = criarElemento("i", ["ph", "ph-arrow-clockwise"]);
-        const iconApagarTarefa = criarElemento("i", ["ph", "ph-trash"]);
-        const labelDescricao = criarElemento("p", ["descricao-texto"], tarefa.descricao);
-
-        const labelProjeto = criarElemento("p", ["projeto-texto"], tarefa.projeto || "*");
-        const labelData = criarElemento("p", ["data-texto"], `Criada em ${formatadorData.format(new Date(tarefa.dataCriacao))}`);
-
-        tarefaWrapper.dataset.id = tarefa.id;
-
-        descricaoWrapper.append(iconTentarDeNovo, iconApagarTarefa, labelDescricao);
-        tarefaWrapper.append(descricaoWrapper, labelProjeto, labelData);
-
-        return tarefaWrapper;
-    };
-
+const criarElementoWrapperTarefas = function (tarefas) {
     const tarefasWrapper = criarElemento("div", ["tarefas"]);
 
     tarefas.forEach(tarefa => {
         if(tarefa.completa) return;
         
         if (!tarefa.abandonada) {
-            if (!tarefa.subtarefas) tarefasWrapper.append(criarTarefaSimples(tarefa));
-            else tarefasWrapper.append(criarTarefaComplexa(tarefa));
-        } else tarefasWrapper.append(criarTarefaVencida(tarefa));
+            if (!tarefa.subtarefas) tarefasWrapper.append(criarElementoTarefaSimples(tarefa));
+            else tarefasWrapper.append(criarElementoTarefaComplexa(tarefa));
+        } else tarefasWrapper.append(criarElementoTarefaVencida(tarefa));
     });
 
     return tarefasWrapper;
 };
 
-const renderizarTarefasPorPrazo = function (tarefas) {
+const criarElementoSemTarefas = function(grupoTarefas){
+    const texto = grupoTarefas === "vencidas" ? "Ainda não tem nada aqui... E eu espero que nunca tenha!" : "Ainda não tem nada aqui.";
+
+    const nadaAquiWrapper = criarElemento("div", ["nada-aqui"]);
+    const nadaAquiTexto = criarElemento("p", [], texto);
+
+    nadaAquiWrapper.append(nadaAquiTexto);
+
+    return nadaAquiWrapper;
+};
+
+const renderizarTarefas = function (tarefas) {
     const htmls = {
         hoje: '<hgroup class="tarefas-header"><h1 class="tarefas-titulo">Para hoje</h1><h3 class="tarefas-tag tag-hoje">Me priorize!</h3></hgroup>',
         amanha: '<hgroup class="tarefas-header"><h1 class="tarefas-titulo">Para amanhã</h1><h3 class="tarefas-tag tag-amanha">Se planeje para mim.</h3></hgroup>',
@@ -230,20 +280,16 @@ const renderizarTarefasPorPrazo = function (tarefas) {
         vencidas: '<h2>Tarefas vencidas</h2>',
     };
 
-    for (const [prazo, tarefasArr] of Object.entries(tarefas)) {
-        const containerTarefas = document.querySelector(`.tarefas-grupo-${prazo}`);
+    for (const [prazoTarefas, arrTarefas] of Object.entries(tarefas)) {
+        const containerTarefas = document.querySelector(`.tarefas-grupo-${prazoTarefas}`);
 
-        containerTarefas.innerHTML = htmls[prazo];
+        containerTarefas.innerHTML = htmls[prazoTarefas];
 
-        if (tarefasArr.every(tarefa => tarefa.completa) || !tarefasArr.length) {
-            const nadaAquiWrapper = criarElemento("div", ["nada-aqui"]);
-            const nadaAquiTexto = criarElemento("p", [], prazo === "vencidas" ? "Ainda não tem nada aqui... E eu espero que nunca tenha!" : "Ainda não tem nada aqui.");
-
-            nadaAquiWrapper.append(nadaAquiTexto);
-
-            containerTarefas.append(nadaAquiWrapper);
+        if (arrTarefas.every(tarefa => tarefa.completa) || !arrTarefas.length) {
+            const elementoSemTarefas = criarElementoSemTarefas(prazoTarefas);
+            containerTarefas.append(elementoSemTarefas);
         } else {
-            const tarefasPrazo = criarTarefas(tarefasArr);
+            const tarefasPrazo = criarElementoWrapperTarefas(arrTarefas);
             containerTarefas.append(tarefasPrazo);
         };
     };
@@ -336,27 +382,27 @@ const concluirAdicaoSubtarefa = function (tarefaParent) {
     init();
 };
 
+const calcDiasAteDiaDaSemana = function(diaSemana){
+    let dias = 0;
+
+    const diasAteDiaDaSemana = function(dia = new Date()){
+        if(dia.getDay() === diaSemana) return dias;
+        else {
+            const diaTime = dia.getTime();
+            const diaSeguinte = new Date(diaTime + (24 * 60 * 60 * 1000));
+            dias++;
+            return diasAteDiaDaSemana(diaSeguinte);
+        };
+    };
+
+    return diasAteDiaDaSemana;
+};
+
 const criarNovaTarefa = function () {
     const valorTarefa = inputTarefa.value.trim();
     const valorProjeto = inputProjeto.value.trim();
     const valorPrazo = inputPrazo.find(input => input.checked).value;
     const id = tarefas.at(-1)?.id + 1 || 1;
-
-    const calcDiasAteDiaDaSemana = function(diaSemana){
-        let dias = 0;
-
-        const diasAteDiaDaSemana = function(dia = new Date()){
-            if(dia.getDay() === diaSemana) return dias;
-            else {
-                const diaTime = dia.getTime();
-                const diaSeguinte = new Date(diaTime + (24 * 60 * 60 * 1000));
-                dias++;
-                return diasAteDiaDaSemana(diaSeguinte);
-            };
-        };
-
-        return diasAteDiaDaSemana;
-    };
 
     const diasAteSabado = calcDiasAteDiaDaSemana(6);
 
@@ -369,7 +415,6 @@ const criarNovaTarefa = function () {
     const hoje = new Date().getTime();
     const hojeIso = new Date(hoje).toISOString();
     const prazo = new Date(hoje + (diasPrazo[valorPrazo] * 24 * 60 * 60 * 1000)).toISOString();
-
 
     if (!valorTarefa) {
         inputTarefa.style.borderColor = "var(--vermelho-main)"
@@ -407,8 +452,6 @@ const setTemaClaro = function(){
 
     for(const [variavel, valor] of Object.entries(coresLightMode)) document.documentElement.style.setProperty(variavel, valor);
     [sol.dataset.active, lua.dataset.active] = [false, true];
-
-    console.log("oi")
 };
 
 const setTemaEscuro = function(){
@@ -417,8 +460,6 @@ const setTemaEscuro = function(){
 
     for(const [variavel, valor] of Object.entries(coresDarkMode)) document.documentElement.style.setProperty(variavel, valor);
     [sol.dataset.active, lua.dataset.active] = [true, false];
-
-    console.log("oie")
 };
 
 const init = function () {
@@ -426,7 +467,7 @@ const init = function () {
     localStorage.setItem("subtarefas", JSON.stringify(subtarefas));
 
     const tarefasObj = gerarTarefasPorPrazo(tarefas);
-    renderizarTarefasPorPrazo(tarefasObj);
+    renderizarTarefas(tarefasObj);
 };
 
 init();
