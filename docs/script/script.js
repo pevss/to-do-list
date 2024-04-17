@@ -606,10 +606,12 @@ window.addEventListener("click", function (e) {
     if (!(e.target.classList.contains("editavel")) && editando) {
         concluirEdicaoTexto(textoEditado);
         editando = false;
+        return;
     };
 
     if (!e.target.classList.contains("adicionar-subtarefa") && !e.target.classList.contains("ph-plus-circle") && adicionandoSubtarefa) {
         concluirAdicaoSubtarefa(parentTarefaAdicionada);
         adicionandoSubtarefa = false;
+        return;
     };
 });
