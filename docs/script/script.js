@@ -296,6 +296,9 @@ const renderizarTarefas = function (tarefas) {
 };
 
 const editarTexto = function (textoClicado) {
+    if(editando) return;
+    editando = true;
+
     textoClicado.contentEditable = true;
 };
 
@@ -327,21 +330,22 @@ const adicionarSubtarefa = function (tarefaParent) {
     parentTarefaAdicionada = tarefaParent.closest(".wrapper-tarefa") || tarefaParent;
 
     adicionandoSubtarefa = true;
-
+    
+    let elementoParent;
     const containerTarefaChild = criarElemento("div", ["tarefa-child"]);
     const inputAdicionar = criarElemento("input", ["adicionar-subtarefa"]);
 
     containerTarefaChild.append(inputAdicionar);
-
+    
     if (tarefaParent.classList.contains("tarefa-complexa")) {
-        const containerTarefasChild = tarefaParent.querySelector(".tarefas-child");
-        containerTarefasChild.append(containerTarefaChild);
+        elementoParent = tarefaParent.querySelector(".tarefas-child");
     };
 
     if (tarefaParent.classList.contains("tarefa")) {
-        const tarefaWrapper = tarefaParent.parentElement;
-        tarefaWrapper.append(containerTarefaChild);
+        elementoParent = tarefaParent.parentElement;
     };
+
+    elementoParent.append(containerTarefaChild);
 
     inputAdicionar.focus();
 };
@@ -480,7 +484,7 @@ containerTarefas.addEventListener("click", function (e) {
 
     // handle task completion
     if (target.classList.contains("check-tarefa")) {
-        if (adicionandoSubtarefa) return;
+        if (adicionandoSubtarefa || editando) return;
 
         const tarefa = target.closest(".tarefa") || target.closest(".tarefa-complexa");
         const tarefaId = +tarefa.dataset.id;
@@ -521,11 +525,11 @@ containerTarefas.addEventListener("click", function (e) {
 
     //handle new subtask
     if (target.classList.contains("ph-plus-circle")) {
+        if(editando) return;
+
         const tarefaParent = target.closest(".tarefa-complexa") || target.closest(".tarefa");
 
-        if (target.closest(".tarefa-complexa")) adicionarSubtarefa(tarefaParent);
-
-        if (target.closest(".tarefa")) adicionarSubtarefa(tarefaParent);
+        adicionarSubtarefa(tarefaParent);
     };
 });
 
@@ -568,13 +572,11 @@ containerTarefas.addEventListener("dblclick", function (e) {
 
         if (!editando) {
             if (target.classList.contains("projeto-texto")) {
-                editando = true;
                 textoEditado = target;
                 antigoTextoGlobal = undefined;
             };
 
             if (target.classList.contains("descricao-texto") || target.classList.contains("descricao-texto-child") && tarefaConcluida === "false") {
-                editando = true;
                 textoEditado = target;
                 antigoTextoGlobal = target.textContent;
             };
@@ -605,13 +607,11 @@ window.addEventListener("keydown", function (e) {
 window.addEventListener("click", function (e) {
     if (!(e.target.classList.contains("editavel")) && editando) {
         concluirEdicaoTexto(textoEditado);
-        editando = false;
-        return;
+        editando = false; 
     };
 
     if (!e.target.classList.contains("adicionar-subtarefa") && !e.target.classList.contains("ph-plus-circle") && adicionandoSubtarefa) {
         concluirAdicaoSubtarefa(parentTarefaAdicionada);
         adicionandoSubtarefa = false;
-        return;
     };
 });
