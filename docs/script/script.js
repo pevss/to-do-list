@@ -143,7 +143,7 @@ const criarElementoTarefaSimples = function(tarefa){
     const iconAdiconarTarefaChild = criarElemento("i", ["ph", "ph-plus-circle"]);
 
     const labelProjeto = criarElemento("p", ["projeto-texto", "editavel"], tarefa.projeto || "*");
-    const labelData = criarElemento("p", ["data-texto", "editavel"], calcularDataDeCriacaoTarefa(tarefa.dataCriacao));
+    const labelData = criarElemento("p", ["data-texto"], calcularDataDeCriacaoTarefa(tarefa.dataCriacao));
 
     checkTarefa.dataset.concluido = tarefa.completa;
     tarefaWrapper.dataset.id = tarefa.id;
